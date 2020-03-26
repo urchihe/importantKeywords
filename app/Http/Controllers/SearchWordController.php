@@ -104,7 +104,7 @@ class SearchWordController extends Controller
         $this->keyWord = $originalString;
         $strLength = strlen($this->keyWord);
         $responses = $this->autoComplete($request);
-        while($strLength > 1){
+        while($strLength >= 1){
             foreach($responses as $response){
                 if($originalString === $response){
                     $this->score += (100 / strlen($originalString));
