@@ -15,7 +15,11 @@ use Illuminate\Support\Facades\Route;
 */
 Route::group(['middleware' => []], function () {
     /**
-     * search amazon auto-complete word 
+     * search amazon auto-complete single 
      */
-    Route::post('/auto-complete', 'SearchWordController@autoComplete');
+    Route::post('/auto-complete-single', 'SearchWordController@singleSearch');
+    /**
+     * search amazon auto-complete iterate
+     */
+     Route::post('/auto-complete-iterate', 'SearchWordController@iterateSearch');
 });

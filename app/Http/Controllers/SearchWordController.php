@@ -24,6 +24,11 @@ class SearchWordController extends Controller
     public $score;
 
     /** 
+    * @var int 
+    */
+    public $stringLength;
+
+    /** 
     * @var string 
     */
     public $keyWord;
@@ -39,25 +44,25 @@ class SearchWordController extends Controller
      * @param Client $client
      */
 
-    public function __construct(Client $client,int $score = 0, string $keyWord = Null) {
+    public function __construct(Client $client,int $score = 0,int $stringLength = 0, string $keyWord = Null) {
         $this->client = $client;
         $this->score = $score;
         $this->keyWord = $keyWord;
+        $this->stringLength = $stringLength;
     }
     /** 
     * @param SearchWordRequest $request
-    * @return SearchWordResource
+    * @return array $responses
     * @throws ClientException
     */
     public function autoComplete(SearchWordRequest $request){
-        $this->keyWord = $request->input('keyword');
         $amazonUrl = env('AMAZON_COMPLETE_URL');
         $url = $amazonUrl. '?' .http_build_query(
             [
                 self::DEPARTMENT_FILTER => self::DEPARTMENT,
                 self::CLIENT => self::AMAZON_CLIENT,
                 self::MKT_FILTER => 1,
-                self::SEARCH_TERM => $this->keyWord
+                self::SEARCH_TERM => $request->input('keyword')
             ]);
             try{
                 $response = $this->client->request('GET', $url, [
@@ -65,19 +70,20 @@ class SearchWordController extends Controller
                     'decode_content' => false
                     ]);
             }catch(ClientException $e){
-                throw new ClientException($e->getResponse(),'error fetching data');
+                throw new ClientException($e->getResponse());
             }
             $result = json_decode($response->getBody()->getContents());
-            $this->singleSearch($result[1]);
-            return new SearchWordResource((object)['keyWord' => $this->keyWord,'score'=> $this->score]);
+
+            return $result[1];
     }
     /**
     *Case I single search approach
-    * @param array $responses
-    * @return void
+    * @param SearchWordRequest $request
+    * @return SearchWordResource
     */
-    public function singleSearch(array $responses){
-        
+    public function singleSearch(SearchWordRequest $request){
+        $this->keyWord = $request->input('keyword');
+        $responses = $this->autoComplete($request);
         foreach($responses as $response){
             if($this->keyWord === $response){
                 $this->score += 55;
@@ -86,5 +92,33 @@ class SearchWordController extends Controller
                 $this->score += 5;
             }
         }
+        return new SearchWordResource((object)['keyWord' => $this->keyWord,'score'=> $this->score]);
+    }
+    /**
+    *Case II iterate approach
+    * @param SearchWordRequest $request
+    * @return SearchWordResource
+    */
+    public function iterateSearch(SearchWordRequest $request){
+        $originalString = $request->input('keyword');
+        $calculatScore = strlen($originalString);
+        $this->keyWord = $originalString;
+        $strLength = strlen($this->keyWord);
+        $responses = $this->autoComplete($request);
+        while($strLength > 1){
+            foreach($responses as $response){
+                if($originalString === $response){
+                    $this->score += intval(100 / $calculatScore);
+                }
+            }
+            $string = substr($this->keyWord, 0, -1);
+            $this->keyWord = $string;
+            $request = new SearchWordRequest();
+            $request->replace(['keyword' => $this->keyWord]);
+            $this->autoComplete($request);
+            $strLength = strlen($this->keyWord);
+            
+        }
+        return new SearchWordResource((object)['keyWord'=>$originalString ,'score'=> $this->score]);
     }
 }
