@@ -101,21 +101,20 @@ class SearchWordController extends Controller
     */
     public function iterateSearch(SearchWordRequest $request){
         $originalString = $request->input('keyword');
-        $calculatScore = strlen($originalString);
         $this->keyWord = $originalString;
         $strLength = strlen($this->keyWord);
         $responses = $this->autoComplete($request);
         while($strLength > 1){
             foreach($responses as $response){
                 if($originalString === $response){
-                    $this->score += intval(100 / $calculatScore);
+                    $this->score += (100 / strlen($originalString));
                 }
             }
             $string = substr($this->keyWord, 0, -1);
             $this->keyWord = $string;
             $request = new SearchWordRequest();
             $request->replace(['keyword' => $this->keyWord]);
-            $this->autoComplete($request);
+            $responses = $this->autoComplete($request);
             $strLength = strlen($this->keyWord);
             
         }
