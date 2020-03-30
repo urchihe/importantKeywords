@@ -121,12 +121,32 @@ class SearchWordController extends Controller
     }
 
     /**
-    *Case II iterate approach
+    *Case III iterate approach
     * @param SearchWordRequest $request
     * @return SearchWordResource
     */
     public function iterateSearchWeight(SearchWordRequest $request){
-       
+        $originalString = $request->input('keyword');
+        $originalLength = strlen($originalString);
+        //The sum { $sumRatio } of all string ratio.string with length 6 has ratio 1:2:3:4:5:6 = 21
+        $sumRatio =  ($originalLength * ($originalLength + 1))/ 2;
+        $this->keyWord = $originalString;
+        $this->stringLength = strlen($this->keyWord);
+        $responses = $this->autoComplete($request);
+        while($this->stringLength >= 1){
+            foreach($responses as $response){
+                if($originalString === $response){
+                    //weight with smallest ratio having highest weight and the highest ratio having smallest weight
+                    $this->score += ((($originalLength - $this->stringLength) + 1) / $sumRatio) * 100;
+                }
+            }
+            $string = substr($this->keyWord, 0, -1);
+            $this->keyWord = $string;
+            $request = new SearchWordRequest();
+            $request->replace(['keyword' => $this->keyWord]);
+            $responses = $this->autoComplete($request);
+            $this->stringLength = strlen($this->keyWord);
+        }
         return new SearchWordResource((object)['keyWord'=>$originalString ,'score'=> $this->score]);
     }
 }
