@@ -26,4 +26,8 @@ Route::group(['middleware' => []], function () {
      * search amazon auto-complete iterate
      */
      Route::post('/auto-complete-iterate', 'SearchWordController@iterateSearch');
+     /**
+     * search amazon auto-complete iterate with different Weight
+     */
+    Route::post('/auto-complete-weight', 'SearchWordController@iterateSearchWeight');
 });

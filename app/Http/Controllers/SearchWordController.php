@@ -102,9 +102,9 @@ class SearchWordController extends Controller
     public function iterateSearch(SearchWordRequest $request){
         $originalString = $request->input('keyword');
         $this->keyWord = $originalString;
-        $strLength = strlen($this->keyWord);
+        $this->stringLength = strlen($this->keyWord);
         $responses = $this->autoComplete($request);
-        while($strLength >= 1){
+        while($this->stringLength >= 1){
             foreach($responses as $response){
                 if($originalString === $response){
                     $this->score += (100 / strlen($originalString));
@@ -115,9 +115,18 @@ class SearchWordController extends Controller
             $request = new SearchWordRequest();
             $request->replace(['keyword' => $this->keyWord]);
             $responses = $this->autoComplete($request);
-            $strLength = strlen($this->keyWord);
-            
+            $this->stringLength = strlen($this->keyWord);
         }
+        return new SearchWordResource((object)['keyWord'=>$originalString ,'score'=> $this->score]);
+    }
+
+    /**
+    *Case II iterate approach
+    * @param SearchWordRequest $request
+    * @return SearchWordResource
+    */
+    public function iterateSearchWeight(SearchWordRequest $request){
+       
         return new SearchWordResource((object)['keyWord'=>$originalString ,'score'=> $this->score]);
     }
 }

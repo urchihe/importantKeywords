@@ -15,8 +15,8 @@ class SearchWordResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'keyWord' => $this->keyWord,
-            'score' => $this->score
+            'keyword' => $this->keyWord,
+            'score' => round($this->score)
         ];
     }
 }
