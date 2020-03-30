@@ -136,7 +136,7 @@ class SearchWordController extends Controller
         while($this->stringLength >= 1){
             foreach($responses as $response){
                 if($originalString === $response){
-                    //weight with smallest ratio having highest weight and the highest ratio having smallest weight
+                    //smallest ratio having highest score and the highest ratio having smallest score
                     $this->score += ((($originalLength - $this->stringLength) + 1) / $sumRatio) * 100;
                 }
             }
