@@ -41,7 +41,7 @@ You need the following tools to start this project :
 1. Clone the repo
 ```
 $ git clone https://github.com/urchihe/importantKeywords.git
-$ cd api
+$ cd importantKeywords
 ```
 
 2. Copy and fill .env files
