@@ -149,4 +149,40 @@ class SearchWordController extends Controller
         }
         return new SearchWordResource((object)['keyWord'=>$originalString ,'score'=> $this->score]);
     }
+
+    /**
+    *Case IV iterate approach with first word
+    * @param SearchWordRequest $request
+    * @return SearchWordResource
+    */
+    public function iterateSearchFirstWord(SearchWordRequest $request){
+        $originalStrings = $request->input('keyword');
+        //convert string to array
+        $originalStringArray = explode(" ",$originalStrings);
+        //take the first array
+        $originalString = $originalStringArray[0];
+        $originalLength = strlen($originalString);
+        //The sum { $sumRatio } of all string ratio.string with length 6 has ratio 1:2:3:4:5:6 = 21
+        $sumRatio =  ($originalLength * ($originalLength + 1))/ 2;
+        $this->keyWord = $originalString;
+        $this->stringLength = strlen($this->keyWord);
+        $request = new SearchWordRequest();
+        $request->replace(['keyword' => $originalString]);
+        $responses = $this->autoComplete($request);
+        while($this->stringLength >= 1){
+            foreach($responses as $response){
+                if($originalStrings === $response){
+                    //smallest ratio having highest score and the highest ratio having smallest score
+                    $this->score += ((($originalLength - $this->stringLength) + 1) / $sumRatio) * 100;
+                }
+            }
+            $string = substr($this->keyWord, 0, -1);
+            $this->keyWord = $string;
+            $request = new SearchWordRequest();
+            $request->replace(['keyword' => $this->keyWord]);
+            $responses = $this->autoComplete($request);
+            $this->stringLength = strlen($this->keyWord);
+        }
+        return new SearchWordResource((object)['keyWord'=>$originalStrings , 'score'=> $this->score]);
+    }
 }
