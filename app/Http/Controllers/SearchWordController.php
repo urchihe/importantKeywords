@@ -117,7 +117,7 @@ class SearchWordController extends Controller
             $responses = $this->autoComplete($request);
             $this->stringLength = strlen($this->keyWord);
         }
-        return new SearchWordResource((object)['keyWord'=>$originalString ,'score'=> $this->score]);
+        return new SearchWordResource((object)['keyWord'=>mb_strtolower($originalStrings) ,'score'=> $this->score]);
     }
 
     /**
@@ -147,7 +147,7 @@ class SearchWordController extends Controller
             $responses = $this->autoComplete($request);
             $this->stringLength = strlen($this->keyWord);
         }
-        return new SearchWordResource((object)['keyWord'=>$originalString ,'score'=> $this->score]);
+        return new SearchWordResource((object)['keyWord'=>mb_strtolower($originalStrings) ,'score'=> $this->score]);
     }
 
     /**
@@ -183,6 +183,6 @@ class SearchWordController extends Controller
             $responses = $this->autoComplete($request);
             $this->stringLength = strlen($this->keyWord);
         }
-        return new SearchWordResource((object)['keyWord'=>$originalStrings , 'score'=> $this->score]);
+        return new SearchWordResource((object)['keyWord'=>mb_strtolower($originalStrings) , 'score'=> $this->score]);
     }
 }
