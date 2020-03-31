@@ -62,7 +62,7 @@ class SearchWordController extends Controller
                 self::DEPARTMENT_FILTER => self::DEPARTMENT,
                 self::CLIENT => self::AMAZON_CLIENT,
                 self::MKT_FILTER => 1,
-                self::SEARCH_TERM => $request->input('keyword')
+                self::SEARCH_TERM => mb_strtolower($request->input('keyword'))
             ]);
             try{
                 $response = $this->client->request('GET', $url, [
