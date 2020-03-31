@@ -82,7 +82,7 @@ class SearchWordController extends Controller
     * @return SearchWordResource
     */
     public function singleSearch(SearchWordRequest $request){
-        $this->keyWord = $request->input('keyword');
+        $this->keyWord = mb_strtolower($request->input('keyword'));
         $responses = $this->autoComplete($request);
         foreach($responses as $response){
             if($this->keyWord === $response){
@@ -106,7 +106,7 @@ class SearchWordController extends Controller
         $responses = $this->autoComplete($request);
         while($this->stringLength >= 1){
             foreach($responses as $response){
-                if($originalString === $response){
+                if(mb_strtolower($originalString) === $response){
                     $this->score += (100 / strlen($originalString));
                 }
             }
@@ -135,7 +135,7 @@ class SearchWordController extends Controller
         $responses = $this->autoComplete($request);
         while($this->stringLength >= 1){
             foreach($responses as $response){
-                if($originalString === $response){
+                if(mb_strtolower($originalString) === $response){
                     //smallest ratio having highest score and the highest ratio having smallest score
                     $this->score += ((($originalLength - $this->stringLength) + 1) / $sumRatio) * 100;
                 }
@@ -171,7 +171,7 @@ class SearchWordController extends Controller
         $responses = $this->autoComplete($request);
         while($this->stringLength >= 1){
             foreach($responses as $response){
-                if($originalStrings === $response){
+                if(mb_strtolower($originalStrings) === $response){
                     //smallest ratio having highest score and the highest ratio having smallest score
                     $this->score += ((($originalLength - $this->stringLength) + 1) / $sumRatio) * 100;
                 }
